@@ -2,6 +2,7 @@ package com.meritamerica.assignment7.security.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -48,7 +49,7 @@ class SecurityController {
 
 	@RequestMapping({ "/hello" })
 	public String firstPage() {
-		return "Hello MeritBank APP User";
+		return "Hello World";
 	}
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -63,22 +64,16 @@ class SecurityController {
 			throw new Exception("Incorrect username or password", e);
 		}
 
-
-		final UserDetails userDetails = userDetailsService
-				.loadUserByUsername(authenticationRequest.getUsername());
-
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 		final String jwt = jwtTokenUtil.generateToken(userDetails);
-
 		return ResponseEntity.ok(new AuthenticationResponse(jwt));
 	}
 	
 	@PostMapping(value = "/authenticate/createuser")
 	//@ResponseStatus(HttpStatus.CREATED)
 	public User addUser(@RequestBody User user) {
-		//User newUser = new User(user.getUserName(), user.getPassword());
 		return userService.addUser(user);
 	}
-
 }
 
 @EnableWebSecurity
@@ -109,8 +104,14 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity.csrf().disable()
 				.authorizeRequests()
 				.antMatchers("/authenticate").permitAll()
-				.antMatchers("/authenticate/createUser").hasRole("ADMIN")
+				.antMatchers("/swagger-ui/**").permitAll()
+				.antMatchers("/swagger-ui.html").permitAll()
+				.antMatchers("/configuration/**").permitAll()
+				.antMatchers("/swagger-resources/**").permitAll()
+				.antMatchers("/v2/api-docs").permitAll()
+				.antMatchers("/authenticate/createuser").hasRole("ADMIN")
 				.antMatchers("/accountholder").hasRole("ADMIN")
+				.antMatchers(HttpMethod.GET,"/cdofferings").hasAnyRole("ADMIN", "USER")
 				.anyRequest().authenticated()
 				.and().exceptionHandling()
 				.and().sessionManagement()

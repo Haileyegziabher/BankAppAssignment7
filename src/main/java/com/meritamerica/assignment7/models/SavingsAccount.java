@@ -22,7 +22,7 @@ public class SavingsAccount extends BankAccount {
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accountholder_id")
 	@JsonIgnore
-   private AccountHolder accountHolder;
+    private AccountHolder accountHolder;
 	
 	public SavingsAccount() {
 		
@@ -47,4 +47,3 @@ public class SavingsAccount extends BankAccount {
 	}
 	
 }
-
